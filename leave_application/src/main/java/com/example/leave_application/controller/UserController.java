@@ -25,4 +25,9 @@ public class UserController {
         return leaveApplicationService.findLeaveApplicationByUserUserIdAndLeaveStatus(userId, leaveStatus);
     }
 
+    @GetMapping("/showLeaveBalance/{useId}")
+    public int showLeaveBalance(@PathVariable("useId") Long useId){
+        return leaveApplicationService.showLeaveBalance(useId);
+    }
+
 }

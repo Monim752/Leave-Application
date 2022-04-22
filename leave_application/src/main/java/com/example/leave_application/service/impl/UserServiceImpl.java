@@ -1,8 +1,6 @@
 package com.example.leave_application.service.impl;
 
-import com.example.leave_application.DTO.MySecurityUser;
 import com.example.leave_application.DTO.SignUp;
-import com.example.leave_application.entity.LeaveApplication;
 import com.example.leave_application.entity.PasswordResetToken;
 import com.example.leave_application.entity.Role;
 import com.example.leave_application.entity.User;

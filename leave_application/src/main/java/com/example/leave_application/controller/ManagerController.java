@@ -21,12 +21,12 @@ public class ManagerController {
     private LeaveApplicationService leaveApplicationService;
 
     @PreAuthorize("hasAuthority('MANAGER')")
-    @PatchMapping("/updateleaveApplication/{id}")
+    @PutMapping("/updateLeaveApplication/{id}")
     public ResponseEntity<LeaveApplication> updateLeaveApplication(@RequestBody LeaveApplication leaveApplication, @PathVariable("id") Long id){
         return new ResponseEntity<LeaveApplication>(leaveApplicationService.updateLeaveApplication(id, leaveApplication), HttpStatus.OK);
     }
 
-//    @PreAuthorize("hasAuthority('MANAGER')")
+    @PreAuthorize("hasAuthority('MANAGER')")
     @GetMapping("/leaveWithStatus/{leaveStatus}")
     List<LeaveApplication> findLeaveApplicationByLeaveStatus(@PathVariable("leaveStatus") LeaveStatus leaveStatus){
         return leaveApplicationService.findLeaveApplicationByLeaveStatus(leaveStatus);

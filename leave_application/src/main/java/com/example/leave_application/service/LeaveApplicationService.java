@@ -11,8 +11,6 @@ import java.util.List;
 
 public interface LeaveApplicationService {
 
-    @Transactional
-    LeaveApplication applyForLeave(LeaveApplication leaveApplication);
 
     @Transactional
     LeaveApplication applyForLeaveRequest(LeaveApplicationDTO leaveRequest);
@@ -29,6 +27,10 @@ public interface LeaveApplicationService {
     List<LeaveApplication> findLeaveApplicationByUserUserId(Long userId);
 
     List<LeaveApplication> findLeaveApplicationByUserUserIdAndLeaveStatus(Long userId, LeaveStatus leaveStatus);
+
+    int showLeaveBalance(Long userId);
+
+    LeaveApplication findAllByUserUserId(Long userId);
 
     int countLeaveApplicationsByUserUserId(Long userId);
 }

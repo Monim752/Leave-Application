@@ -1,21 +1,16 @@
 package com.example.leave_application.service.impl;
 
-import com.example.leave_application.DTO.LeaveApplicationDTO;
-import com.example.leave_application.DTO.Manager.ManagerLeaveApplicationDTO;
 import com.example.leave_application.entity.LeaveApplication;
 import com.example.leave_application.entity.YearlyLeave;
 import com.example.leave_application.enums.LeaveStatus;
 import com.example.leave_application.exception.BalanceNotAvailableException;
-import com.example.leave_application.exception.EmailNotFoundException;
 import com.example.leave_application.exception.LeaveApplicationNotFoundException;
 import com.example.leave_application.repository.LeaveApplicationRepository;
-import com.example.leave_application.repository.YearlyLeaveRepository;
 import com.example.leave_application.service.LeaveApplicationService;
 import com.example.leave_application.service.YearlyLeaveService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
 
@@ -29,34 +24,6 @@ public class LeaveApplicationServiceImpl implements LeaveApplicationService {
     private YearlyLeaveService yearlyLeaveService;
 
     @Override
-    public LeaveApplication applyForLeave(LeaveApplication leaveApplication) {
-
-        YearlyLeave yearlyLeave=yearlyLeaveService.findYearlyLeaveByLeaveTypeLeaveTypeId(leaveApplication.getLeaveType().getLeaveTypeId());
-        LeaveApplicationDTO leaveApplicationDTO=new LeaveApplicationDTO();
-
-        List<LeaveApplication>leaveApplicationList=leaveApplicationRepository.findLeaveApplicationByUserUserId(leaveApplication.getUser().getUserId());
-
-
-        int sumOfTotalLeave=0;
-        for(LeaveApplication application: leaveApplicationList){
-            if(application.getLeaveStatus()==LeaveStatus.valueOf("APPROVED")){
-                int duration=application.getToDate().getDate()-application.getFromDate().getDate();
-                sumOfTotalLeave+=duration;
-            }
-        }
-        int maximumDay=yearlyLeave.getMaximumDay();
-
-        int leaveBalance=maximumDay-sumOfTotalLeave;
-        leaveApplicationDTO.setLeaveBalance(leaveBalance);
-        if(leaveBalance>0){
-            return leaveApplicationRepository.save(leaveApplication);
-        }
-        else{
-            throw new BalanceNotAvailableException("Leave Balance not available!!");
-        }
-    }
-
-    @Override
     public LeaveApplication applyForLeaveRequest(com.example.leave_application.DTO.User.LeaveApplicationDTO leaveRequest) {
         LeaveApplication leaveApplication= new LeaveApplication(
                 leaveRequest.getFromDate(),
@@ -68,7 +35,6 @@ public class LeaveApplicationServiceImpl implements LeaveApplicationService {
         leaveApplication.setLeaveStatus(LeaveStatus.PENDING);
 
         YearlyLeave yearlyLeave=yearlyLeaveService.findYearlyLeaveByLeaveTypeLeaveTypeId(leaveApplication.getLeaveType().getLeaveTypeId());
-        LeaveApplicationDTO leaveApplicationDTO=new LeaveApplicationDTO();
 
         List<LeaveApplication>leaveApplicationList=leaveApplicationRepository.findLeaveApplicationByUserUserId(leaveApplication.getUser().getUserId());
 
@@ -82,7 +48,7 @@ public class LeaveApplicationServiceImpl implements LeaveApplicationService {
         int maximumDay=yearlyLeave.getMaximumDay();
 
         int leaveBalance=maximumDay-sumOfTotalLeave;
-        leaveApplicationDTO.setLeaveBalance(leaveBalance);
+
         if(leaveBalance>0){
             return leaveApplicationRepository.save(leaveApplication);
         }
@@ -127,6 +93,40 @@ public class LeaveApplicationServiceImpl implements LeaveApplicationService {
     @Override
     public List<LeaveApplication> findLeaveApplicationByUserUserIdAndLeaveStatus(Long userId, LeaveStatus leaveStatus) {
         return leaveApplicationRepository.findLeaveApplicationByUserUserIdAndLeaveStatus(userId, leaveStatus);
+    }
+
+    @Override
+    public int showLeaveBalance(Long userId) {
+        LeaveApplication leaveApplication=leaveApplicationRepository.findAllByUserUserId(userId);
+
+        YearlyLeave yearlyLeave=yearlyLeaveService.findYearlyLeaveByLeaveTypeLeaveTypeId(leaveApplication.getLeaveType().getLeaveTypeId());
+
+
+        List<LeaveApplication>leaveApplicationList=leaveApplicationRepository.findLeaveApplicationByUserUserId(userId);
+
+
+        int sumOfTotalLeave=0;
+        for(LeaveApplication application: leaveApplicationList){
+            if(application.getLeaveStatus()==LeaveStatus.APPROVED){
+                int duration=application.getToDate().getDate()-application.getFromDate().getDate();
+                sumOfTotalLeave+=duration;
+            }
+        }
+        int maximumDay=yearlyLeave.getMaximumDay();
+
+        int leaveBalance=maximumDay-sumOfTotalLeave;
+
+        if(leaveApplication!=null){
+            return leaveBalance;
+        }
+        else {
+            throw new LeaveApplicationNotFoundException("Leave Application not found!!");
+        }
+    }
+
+    @Override
+    public LeaveApplication findAllByUserUserId(Long userId) {
+        return leaveApplicationRepository.findAllByUserUserId(userId);
     }
 
     @Override
