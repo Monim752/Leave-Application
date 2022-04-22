@@ -47,9 +47,13 @@ public class LeaveApplicationServiceImpl implements LeaveApplicationService {
         }
         int maximumDay=yearlyLeave.getMaximumDay();
 
+        Date date=new Date();
+        int y=date.getYear();
+        int currentYear=y+1900;
+        int year=yearlyLeave.getYear();
         int leaveBalance=maximumDay-sumOfTotalLeave;
 
-        if(leaveBalance>0){
+        if(leaveBalance>0 && year==currentYear){
             return leaveApplicationRepository.save(leaveApplication);
         }
         else{
@@ -113,8 +117,17 @@ public class LeaveApplicationServiceImpl implements LeaveApplicationService {
             }
         }
         int maximumDay=yearlyLeave.getMaximumDay();
-
-        int leaveBalance=maximumDay-sumOfTotalLeave;
+        Date date=new Date();
+        int y=date.getYear();
+        int currentYear=y+1900;
+        int year=yearlyLeave.getYear();
+        int leaveBalance;
+        if(year==currentYear){
+            leaveBalance=maximumDay-sumOfTotalLeave;
+        }
+        else {
+            leaveBalance=0;
+        }
 
         if(leaveApplication!=null){
             return leaveBalance;
