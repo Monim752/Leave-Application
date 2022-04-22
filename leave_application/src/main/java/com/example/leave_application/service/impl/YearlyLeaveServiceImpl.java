@@ -13,7 +13,7 @@ public class YearlyLeaveServiceImpl implements YearlyLeaveService {
     private YearlyLeaveRepository yearlyLeaveRepository;
 
     @Override
-    public YearlyLeave createYearlyLeave(YearlyLeave yearlyLeave) {
+    public YearlyLeave createLeave(YearlyLeave yearlyLeave) {
 
         return yearlyLeaveRepository.save(yearlyLeave);
     }

@@ -5,6 +5,7 @@ import com.example.leave_application.enums.LeaveStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -12,9 +13,11 @@ public interface LeaveApplicationRepository extends JpaRepository<LeaveApplicati
 
     LeaveApplication findLeaveApplicationById(Long id);
 
-    List<LeaveApplication> findLeaveApplicationByLeaveStatus(LeaveStatus leaveStatus);
+    List<LeaveApplication>findAllByLeaveStatus(LeaveStatus leaveStatus);
 
-    List<LeaveApplication> findByUserUserId(Long userId);
+    List<LeaveApplication> findLeaveApplicationByFromDateBetween(Date fromDate, Date toDate);
+
+    List<LeaveApplication> findLeaveApplicationByUserUserIdAndLeaveStatus(Long userId, LeaveStatus leaveStatus);
 
     int countLeaveApplicationsByUserUserId(Long userId);
 

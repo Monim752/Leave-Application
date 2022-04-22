@@ -6,6 +6,7 @@ import com.example.leave_application.entity.LeaveApplication;
 import com.example.leave_application.enums.LeaveStatus;
 
 import javax.transaction.Transactional;
+import java.util.Date;
 import java.util.List;
 
 public interface LeaveApplicationService {
@@ -19,11 +20,15 @@ public interface LeaveApplicationService {
     @Transactional
     LeaveApplication updateLeaveApplication(Long id, LeaveApplication leaveApplication);
 
+    List<LeaveApplication> findLeaveApplicationByDateRange(Date fromDate, Date toDate);
+
     List<LeaveApplication> findLeaveApplicationByLeaveStatus(LeaveStatus leaveStatus);
 
-    List<LeaveApplication> findByUserUserId(Long userId);
+    LeaveApplication findLeaveApplicationById(Long id);
 
     List<LeaveApplication> findLeaveApplicationByUserUserId(Long userId);
+
+    List<LeaveApplication> findLeaveApplicationByUserUserIdAndLeaveStatus(Long userId, LeaveStatus leaveStatus);
 
     int countLeaveApplicationsByUserUserId(Long userId);
 }

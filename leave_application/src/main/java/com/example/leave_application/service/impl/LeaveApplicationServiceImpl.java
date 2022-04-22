@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -23,8 +24,7 @@ public class LeaveApplicationServiceImpl implements LeaveApplicationService {
 
     @Autowired
     private LeaveApplicationRepository leaveApplicationRepository;
-    @Autowired
-    private YearlyLeaveRepository yearlyLeaveRepository;
+
     @Autowired
     private YearlyLeaveService yearlyLeaveService;
 
@@ -34,12 +34,12 @@ public class LeaveApplicationServiceImpl implements LeaveApplicationService {
         YearlyLeave yearlyLeave=yearlyLeaveService.findYearlyLeaveByLeaveTypeLeaveTypeId(leaveApplication.getLeaveType().getLeaveTypeId());
         LeaveApplicationDTO leaveApplicationDTO=new LeaveApplicationDTO();
 
-        List<LeaveApplication>leaveApplicationList=leaveApplicationRepository.findByUserUserId(leaveApplication.getUser().getUserId());
+        List<LeaveApplication>leaveApplicationList=leaveApplicationRepository.findLeaveApplicationByUserUserId(leaveApplication.getUser().getUserId());
 
 
         int sumOfTotalLeave=0;
         for(LeaveApplication application: leaveApplicationList){
-            if(application.getLeaveStatus()==LeaveStatus.APPROVED){
+            if(application.getLeaveStatus()==LeaveStatus.valueOf("APPROVED")){
                 int duration=application.getToDate().getDate()-application.getFromDate().getDate();
                 sumOfTotalLeave+=duration;
             }
@@ -74,7 +74,7 @@ public class LeaveApplicationServiceImpl implements LeaveApplicationService {
 
         int sumOfTotalLeave=0;
         for(LeaveApplication application: leaveApplicationList){
-            if(application.getLeaveStatus()==LeaveStatus.valueOf("APPROVED")){
+            if(application.getLeaveStatus()==LeaveStatus.APPROVED){
                 int duration=application.getToDate().getDate()-application.getFromDate().getDate();
                 sumOfTotalLeave+=duration;
             }
@@ -102,21 +102,31 @@ public class LeaveApplicationServiceImpl implements LeaveApplicationService {
     }
 
     @Override
+    public List<LeaveApplication> findLeaveApplicationByDateRange(Date fromDate, Date toDate) {
+        return leaveApplicationRepository.findLeaveApplicationByFromDateBetween(fromDate, toDate);
+    }
+
+    @Override
     public List<LeaveApplication>findLeaveApplicationByLeaveStatus(LeaveStatus leaveStatus) {
         if(leaveStatus!=null){
-            leaveApplicationRepository.findLeaveApplicationByLeaveStatus(leaveStatus);
+            leaveApplicationRepository.findAllByLeaveStatus(leaveStatus);
         }
         return null;
     }
 
     @Override
-    public List<LeaveApplication> findByUserUserId(Long userId) {
-        return leaveApplicationRepository.findByUserUserId(userId);
+    public LeaveApplication findLeaveApplicationById(Long id) {
+        return leaveApplicationRepository.findLeaveApplicationById(id);
     }
 
     @Override
     public List<LeaveApplication> findLeaveApplicationByUserUserId(Long userId) {
         return leaveApplicationRepository.findLeaveApplicationByUserUserId(userId);
+    }
+
+    @Override
+    public List<LeaveApplication> findLeaveApplicationByUserUserIdAndLeaveStatus(Long userId, LeaveStatus leaveStatus) {
+        return leaveApplicationRepository.findLeaveApplicationByUserUserIdAndLeaveStatus(userId, leaveStatus);
     }
 
     @Override

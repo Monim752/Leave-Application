@@ -11,6 +11,7 @@ import com.example.leave_application.service.LeaveTypeService;
 import com.example.leave_application.service.UserService;
 import com.example.leave_application.service.YearlyLeaveService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,25 +23,19 @@ import java.util.List;
 public class AdminController {
     @Autowired
     private UserService userService;
-    @Autowired
-    private LeaveTypeService leaveTypeService;
+
     @Autowired
     private YearlyLeaveService yearlyLeaveService;
-    @Autowired
-    private LeaveApplicationService leaveApplicationService;
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/users")
-    public List<User> findAllUsers(){
+    public List<User> findAllUsers() {
         return userService.findAllUsers();
     }
 
-    @PostMapping("/createLeaveType")
-    public LeaveType createLeaveType(@RequestBody LeaveType leaveType){
-        return leaveTypeService.createLeaveType(leaveType);
-    }
-
-    @PostMapping("/createYearlyLeave")
-    public YearlyLeave createYearlyLeave(@RequestBody YearlyLeave yearlyLeave){
-        return yearlyLeaveService.createYearlyLeave(yearlyLeave);
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PostMapping("/createLeave")
+    public YearlyLeave createLeave(@RequestBody YearlyLeave yearlyLeave) {
+        return yearlyLeaveService.createLeave(yearlyLeave);
     }
 }
