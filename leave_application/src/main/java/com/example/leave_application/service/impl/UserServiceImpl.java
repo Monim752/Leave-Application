@@ -87,11 +87,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean checkIfValidOldPassword(User user, String oldPassword) {
-        return passwordEncoder.matches(oldPassword,user.getPassword());
-    }
-
-    @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user=userRepository.findUserByEmail(username);
 

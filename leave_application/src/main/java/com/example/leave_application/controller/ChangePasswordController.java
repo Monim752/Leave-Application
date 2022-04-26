@@ -3,6 +3,7 @@ package com.example.leave_application.controller;
 import com.example.leave_application.DTO.ChangePassword;
 import com.example.leave_application.DTO.ResetPasswordDTO;
 import com.example.leave_application.entity.User;
+import com.example.leave_application.repository.UserRepository;
 import com.example.leave_application.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +26,14 @@ import java.util.UUID;
 public class ChangePasswordController {
     @Autowired
     private UserService userService;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private UserRepository userRepository;
+
 
     @PostMapping("/resetPassword")
-    public String changePassword(@RequestBody ResetPasswordDTO resetPasswordDTO, HttpServletRequest request){
+    public String resetPassword(@RequestBody ResetPasswordDTO resetPasswordDTO, HttpServletRequest request){
         User user=userService.findUserByEmail(resetPasswordDTO.getEmail());
         String url="";
 
@@ -57,14 +63,28 @@ public class ChangePasswordController {
 
     @PostMapping("/changePassword")
     public String changePassword(@RequestBody ResetPasswordDTO resetPasswordDTO){
-        User user = userService.findUserByEmail(resetPasswordDTO.getEmail());
-        if(!userService.checkIfValidOldPassword(user,resetPasswordDTO.getOldPassword())) {
-            return "Invalid Old Password";
+        User user=userRepository.findUserByEmail(resetPasswordDTO.getEmail());
+        if(user!=null){
+            boolean match1=passwordEncoder.matches(resetPasswordDTO.getOldPassword(), user.getPassword());
+            if(match1)
+            {
+                String encodedPassword=passwordEncoder.encode(resetPasswordDTO.getConfirmPassword());
+                boolean match2=passwordEncoder.matches(resetPasswordDTO.getNewPassword(), encodedPassword);
+                if(match2){
+                    userService.changePassword(user, resetPasswordDTO.getNewPassword());
+                    return "Password changed successfully!!";
+                }
+                else {
+                    return "New password and confirm password are not matched";
+                }
+            }
+            else {
+                return "New password and old password does not matched";
+            }
         }
-
-        //Save New Password
-        userService.changePassword(user,resetPasswordDTO.getNewPassword());
-        return "Password Changed Successfully";
+        else {
+            return "Email not found!!";
+        }
     }
 
     private String passwordResetTokenMail(User user, String applicationUrl, String token) {

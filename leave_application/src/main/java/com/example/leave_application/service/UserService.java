@@ -19,7 +19,6 @@ public interface UserService extends UserDetailsService {
 
     Optional<User> getUserByPasswordResetToken(String token);
 
-    void changePassword(User user, String newPassword);
+    void changePassword(User user, String password);
 
-    boolean checkIfValidOldPassword(User user, String oldPassword);
 }

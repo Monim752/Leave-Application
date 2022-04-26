@@ -10,5 +10,5 @@ public interface YearlyLeaveRepository extends JpaRepository<YearlyLeave, Long> 
     YearlyLeave findYearlyLeaveById(Long id);
     YearlyLeave findYearlyLeaveByMaximumDay(int maximumDay);
     YearlyLeave findYearlyLeaveByLeaveTypeLeaveTypeId(Long leaveTypeId);
-    
+
 }
