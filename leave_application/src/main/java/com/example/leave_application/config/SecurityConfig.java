@@ -36,7 +36,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST,"/signUp").permitAll()
                 .antMatchers(HttpMethod.POST,"/changePassword").authenticated()
                 .antMatchers(HttpMethod.GET,"/users").hasAuthority("ADMIN")
-                .antMatchers("/Manager/").hasAuthority("MANAGER")
+//                .antMatchers("/api/").hasAuthority("MANAGER")
                 .and()
                 .httpBasic()
                 .and()

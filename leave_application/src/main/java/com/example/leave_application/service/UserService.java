@@ -21,4 +21,6 @@ public interface UserService extends UserDetailsService {
 
     void changePassword(User user, String password);
 
+    List<User> findUserByRolesRoleName(String roleName);
+
 }

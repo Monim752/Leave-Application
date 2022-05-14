@@ -16,7 +16,7 @@ public class LeaveTypeServiceImpl implements LeaveTypeService {
     public LeaveType createLeaveType(LeaveType leaveType) {
         if(leaveType!=null)
         {
-            leaveTypeRepository.save(leaveType);
+            return leaveTypeRepository.save(leaveType);
         }
         return null;
     }

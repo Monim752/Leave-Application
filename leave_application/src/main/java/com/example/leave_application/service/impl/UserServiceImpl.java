@@ -31,7 +31,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User saveData(SignUp signUp) {
-        User user=new User(signUp.getEmail(), signUp.getPassword(), signUp.getUserName(), signUp.getManagerId(), Arrays.asList(new Role("USER")));
+        User user=new User(signUp.getEmail(), signUp.getPassword(),
+                signUp.getUserName(), signUp.getManagerId(), Arrays.asList(new Role(signUp.getRole().getRoleName(), signUp.getRole().getLevel())));
         return userRepository.save(user);
     }
 
@@ -84,6 +85,11 @@ public class UserServiceImpl implements UserService {
     public void changePassword(User user, String newPassword) {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
+    }
+
+    @Override
+    public List<User> findUserByRolesRoleName(String roleName) {
+        return userRepository.findUserByRolesRoleName(roleName);
     }
 
     @Override

@@ -2,8 +2,10 @@ package com.example.leave_application.controller;
 
 
 import com.example.leave_application.entity.LeaveApplication;
+import com.example.leave_application.entity.User;
 import com.example.leave_application.enums.LeaveStatus;
 import com.example.leave_application.service.LeaveApplicationService;
+import com.example.leave_application.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,20 +16,12 @@ public class UserController {
 
     @Autowired
     private LeaveApplicationService leaveApplicationService;
+    @Autowired
+    private UserService userService;
 
-    @PostMapping("/applyForLeaveRequest")
-    public LeaveApplication applyForLeaveRequest(@RequestBody com.example.leave_application.DTO.User.LeaveApplicationDTO leaveRequest){
-        return leaveApplicationService.applyForLeaveRequest(leaveRequest);
-    }
-
-    @GetMapping("findLeaveApplications/{userId}/{leaveStatus}")
-    public List<LeaveApplication> findLeaveApplicationByUserUserIdAndLeaveStatus(@PathVariable("userId") Long userId, @PathVariable("leaveStatus") LeaveStatus leaveStatus){
-        return leaveApplicationService.findLeaveApplicationByUserUserIdAndLeaveStatus(userId, leaveStatus);
-    }
-
-    @GetMapping("/showLeaveBalance/{useId}")
-    public int showLeaveBalance(@PathVariable("useId") Long useId){
-        return leaveApplicationService.showLeaveBalance(useId);
+    @GetMapping("/findUserByRolesRoleName/{roleName}")
+    public List<User> findUserByRolesRoleName(@PathVariable("roleName") String roleName){
+        return userService.findUserByRolesRoleName(roleName);
     }
 
 }

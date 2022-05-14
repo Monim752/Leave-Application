@@ -37,17 +37,22 @@ public class LeaveApplication {
     @JoinColumn(name = "leave_type_id", referencedColumnName = "leaveTypeId")
     private LeaveType leaveType;
 
-    public LeaveApplication(Date fromDate, Date toDate, String remark, User user, LeaveType leaveType){
+    public LeaveApplication(Date fromDate, Date toDate, String remark, LeaveType leaveType, User user){
         super();
         this.fromDate=fromDate;
         this.toDate=toDate;
         this.remark=remark;
-        this.user=user;
         this.leaveType=leaveType;
+        this.user=user;
     }
     public LeaveApplication(Long id, LeaveStatus leaveStatus){
         super();
         this.id=id;
         this.leaveStatus=leaveStatus;
+    }
+
+    public LeaveApplication(LeaveType leaveType) {
+        super();
+        this.leaveType=leaveType;
     }
 }

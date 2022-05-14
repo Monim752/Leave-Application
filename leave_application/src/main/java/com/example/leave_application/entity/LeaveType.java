@@ -15,8 +15,14 @@ public class LeaveType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long leaveTypeId;
+    @Column(name = "leaveTypeName", unique = true)
     private String leaveTypeName;
     private String remark;
+
+    public LeaveType(Long leaveTypeId) {
+        super();
+        this.leaveTypeId=leaveTypeId;
+    }
 
 //    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 //    @JoinColumn(name = "leave_type_id", referencedColumnName = "leaveTypeId")

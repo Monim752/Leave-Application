@@ -42,6 +42,11 @@ public class User {
         this.managerId=managerId;
     }
 
+    public User(Long userId) {
+        super();
+        this.userId=userId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

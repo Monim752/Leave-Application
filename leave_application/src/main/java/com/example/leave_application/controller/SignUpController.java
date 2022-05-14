@@ -14,13 +14,5 @@ public class SignUpController {
 
     @Autowired
     private UserService userService;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
-    @PostMapping("/signUp")
-    public User saveData(@RequestBody SignUp signUp){
-        String encodedPassword= passwordEncoder.encode(signUp.getPassword());
-        signUp.setPassword(encodedPassword);
-        return userService.saveData(signUp);
-    }
 }

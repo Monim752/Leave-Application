@@ -8,6 +8,8 @@ import com.example.leave_application.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpRequest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
@@ -63,7 +65,9 @@ public class ChangePasswordController {
 
     @PostMapping("/changePassword")
     public String changePassword(@RequestBody ResetPasswordDTO resetPasswordDTO){
-        User user=userRepository.findUserByEmail(resetPasswordDTO.getEmail());
+        Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+        String email= authentication.getName();
+        User user=userRepository.findUserByEmail(email);
         if(user!=null){
             boolean match1=passwordEncoder.matches(resetPasswordDTO.getOldPassword(), user.getPassword());
             if(match1)

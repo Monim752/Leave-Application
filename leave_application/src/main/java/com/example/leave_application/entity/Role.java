@@ -20,7 +20,11 @@ public class Role {
     private String level;
 
     public Role(String roleName) {
+
+    }
+    public Role(String roleName, String level) {
         super();
         this.roleName=roleName;
+        this.level=level;
     }
 }

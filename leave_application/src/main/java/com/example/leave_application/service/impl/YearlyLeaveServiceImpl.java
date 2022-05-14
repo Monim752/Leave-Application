@@ -1,21 +1,33 @@
 package com.example.leave_application.service.impl;
 
+import com.example.leave_application.entity.LeaveType;
 import com.example.leave_application.entity.YearlyLeave;
+import com.example.leave_application.exception.LeaveTypeNotFoundException;
+import com.example.leave_application.repository.LeaveTypeRepository;
 import com.example.leave_application.repository.YearlyLeaveRepository;
 import com.example.leave_application.service.YearlyLeaveService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class YearlyLeaveServiceImpl implements YearlyLeaveService {
 
     @Autowired
     private YearlyLeaveRepository yearlyLeaveRepository;
-
+    @Autowired
+    private LeaveTypeRepository leaveTypeRepository;
     @Override
-    public YearlyLeave createLeave(YearlyLeave yearlyLeave) {
+    public String allocateYearlyLeave(int year, String leaveType, int maximumLeave) {
+        LeaveType leave=leaveTypeRepository.findLeaveTypeByLeaveTypeName(leaveType);
+        if(leave==null){
+            throw new LeaveTypeNotFoundException("LeaveType not found!!");
+        }
+        YearlyLeave yearlyLeave=new YearlyLeave(year,maximumLeave,new LeaveType(leave.getLeaveTypeId()));
+        yearlyLeaveRepository.save(yearlyLeave);
 
-        return yearlyLeaveRepository.save(yearlyLeave);
+        return "YearlyLeave allocated";
     }
 
     @Override
@@ -29,7 +41,7 @@ public class YearlyLeaveServiceImpl implements YearlyLeaveService {
     }
 
     @Override
-    public YearlyLeave findYearlyLeaveByLeaveTypeLeaveTypeId(Long leaveTypeId) {
+    public List<YearlyLeave> findYearlyLeaveByLeaveTypeLeaveTypeId(Long leaveTypeId) {
         return yearlyLeaveRepository.findYearlyLeaveByLeaveTypeLeaveTypeId(leaveTypeId);
     }
 }

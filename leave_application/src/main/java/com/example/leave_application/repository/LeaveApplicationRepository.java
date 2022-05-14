@@ -13,10 +13,14 @@ import java.util.List;
 public interface LeaveApplicationRepository extends JpaRepository<LeaveApplication, Long> {
 
     LeaveApplication findLeaveApplicationById(Long id);
+    LeaveApplication findLeaveApplicationByIdAndUserUserId(Long id, Long userId);
+    List<LeaveApplication> findAll();
 
-    LeaveApplication findAllByUserUserId(Long userId);
+    List<LeaveApplication> findLeaveApplicationByUserUserId(Long userId);
 
-    List<LeaveApplication>findAllByLeaveStatus(LeaveStatus leaveStatus);
+    List<LeaveApplication> findLeaveApplicationByLeaveStatusAndUserUserId(LeaveStatus leaveStatus, Long userId);
+
+    List<LeaveApplication> findLeaveApplicationByLeaveTypeLeaveTypeNameAndUserUserId(String leaveType, Long userId);
 
     List<LeaveApplication> findLeaveApplicationByFromDateBetween(Date fromDate, Date toDate);
 
@@ -24,7 +28,6 @@ public interface LeaveApplicationRepository extends JpaRepository<LeaveApplicati
 
     int countLeaveApplicationsByUserUserId(Long userId);
 
-    List<LeaveApplication> findLeaveApplicationByUserUserId(Long userId);
 
 
 }

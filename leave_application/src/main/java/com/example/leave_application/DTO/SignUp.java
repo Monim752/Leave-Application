@@ -1,5 +1,6 @@
 package com.example.leave_application.DTO;
 
+import com.example.leave_application.entity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,4 +14,5 @@ public class SignUp {
     private String password;
     private String userName;
     private Long managerId;
+    private Role role;
 }
