@@ -1,6 +1,8 @@
 package com.example.leave_application.service.impl;
 
-import com.example.leave_application.DTO.SignUp;
+import com.example.leave_application.DTO.Admin.Admin;
+import com.example.leave_application.DTO.Manager.Manager;
+import com.example.leave_application.DTO.UserInfo;
 import com.example.leave_application.entity.PasswordResetToken;
 import com.example.leave_application.entity.Role;
 import com.example.leave_application.entity.User;
@@ -30,9 +32,23 @@ public class UserServiceImpl implements UserService {
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public User saveData(SignUp signUp) {
+    public User addUser(UserInfo signUp) {
         User user=new User(signUp.getEmail(), signUp.getPassword(),
-                signUp.getUserName(), signUp.getManagerId(), Arrays.asList(new Role(signUp.getRole().getRoleName(), signUp.getRole().getLevel())));
+                signUp.getUserName(), signUp.getManagerId(), Arrays.asList(new Role("USER")));
+        return userRepository.save(user);
+    }
+
+    @Override
+    public User addManager(Manager manager) {
+        User user=new User(manager.getEmail(), manager.getPassword(),
+                manager.getUserName(), Arrays.asList(new Role("MANAGER", manager.getLevel())));
+        return userRepository.save(user);
+    }
+
+    @Override
+    public User addAdmin(Admin admin) {
+        User user=new User(admin.getEmail(), admin.getPassword(),
+                admin.getUserName(), Arrays.asList(new Role("ADMIN", admin.getLevel())));
         return userRepository.save(user);
     }
 
@@ -99,10 +115,11 @@ public class UserServiceImpl implements UserService {
         if(user==null){
             throw new UsernameNotFoundException("user not found!!");
         }
-        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
+        return UserDetailsImpl.build(user);
+        //return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
     }
 
-    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
-        return roles.stream().map(role -> new SimpleGrantedAuthority(role.getRoleName())).collect(Collectors.toList());
-    }
+//    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
+//        return roles.stream().map(role -> new SimpleGrantedAuthority(role.getRoleName())).collect(Collectors.toList());
+//    }
 }

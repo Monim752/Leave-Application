@@ -1,6 +1,6 @@
 package com.example.leave_application.service;
 
-import com.example.leave_application.DTO.Manager.ManagerLeaveApplicationDTO;
+import com.example.leave_application.DTO.Manager.ManagerRemarks;
 import com.example.leave_application.DTO.User.LeaveApplicationDTO;
 import com.example.leave_application.DTO.User.UpdateLeaveApplication;
 import com.example.leave_application.entity.LeaveApplication;
@@ -18,10 +18,15 @@ public interface LeaveApplicationService {
 
     List<LeaveApplication> findAll();
 
-    @Transactional
-    LeaveApplication approveLeaveApplication(Long id, LeaveStatus leaveStatus);
+    List<LeaveApplication> findAllLeaveApplications();
 
+    @Transactional
+    String approveLeaveApplication(Long userId, LeaveStatus leaveStatus);
+
+    @Transactional
     String updateLeaveApplication(UpdateLeaveApplication updateLeaveApplication, Long id);
+
+    String putRemarks(ManagerRemarks managerRemarks, Long id);
 
     List<LeaveApplication> findLeaveApplicationByDateRange(Date fromDate, Date toDate);
 
@@ -29,10 +34,16 @@ public interface LeaveApplicationService {
 
     List<LeaveApplication> findLeaveApplicationByLeaveStatus(LeaveStatus leaveStatus);
 
+    List<LeaveApplication> showAllPendingLeaves();
+
     LeaveApplication findLeaveApplicationById(Long id);
 
     List<LeaveApplication> findLeaveApplicationByUserUserIdAndLeaveStatus(Long userId, LeaveStatus leaveStatus);
 
     int showLeaveBalance(String leaveType);
+
+    int showLeaveBalanceOfUsers(String email, String leaveType);
+
+    int showLeaveBalanceByLeaveType(String leaveType);
 
 }

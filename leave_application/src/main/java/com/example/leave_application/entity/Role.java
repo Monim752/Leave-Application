@@ -20,7 +20,8 @@ public class Role {
     private String level;
 
     public Role(String roleName) {
-
+        super();
+        this.roleName=roleName;
     }
     public Role(String roleName, String level) {
         super();

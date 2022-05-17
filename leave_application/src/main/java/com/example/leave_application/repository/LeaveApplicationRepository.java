@@ -18,6 +18,8 @@ public interface LeaveApplicationRepository extends JpaRepository<LeaveApplicati
 
     List<LeaveApplication> findLeaveApplicationByUserUserId(Long userId);
 
+    List<LeaveApplication> findLeaveApplicationByLeaveStatus(LeaveStatus leaveStatus);
+
     List<LeaveApplication> findLeaveApplicationByLeaveStatusAndUserUserId(LeaveStatus leaveStatus, Long userId);
 
     List<LeaveApplication> findLeaveApplicationByLeaveTypeLeaveTypeNameAndUserUserId(String leaveType, Long userId);

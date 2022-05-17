@@ -1,5 +1,6 @@
 package com.example.leave_application.service.impl;
 
+import com.example.leave_application.DTO.Manager.ManagerRemarks;
 import com.example.leave_application.DTO.User.LeaveApplicationDTO;
 import com.example.leave_application.DTO.User.UpdateLeaveApplication;
 import com.example.leave_application.entity.LeaveApplication;
@@ -8,6 +9,7 @@ import com.example.leave_application.entity.User;
 import com.example.leave_application.entity.YearlyLeave;
 import com.example.leave_application.enums.LeaveStatus;
 import com.example.leave_application.exception.BalanceNotAvailableException;
+import com.example.leave_application.exception.EmailNotFoundException;
 import com.example.leave_application.exception.LeaveApplicationNotFoundException;
 import com.example.leave_application.repository.LeaveApplicationRepository;
 import com.example.leave_application.repository.LeaveTypeRepository;
@@ -20,6 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -44,6 +47,8 @@ public class LeaveApplicationServiceImpl implements LeaveApplicationService {
         Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
         String email= authentication.getName();
         User user=userRepository.findUserByEmail(email);
+
+
 
         LeaveApplication leaveApplication= new LeaveApplication(
                 leaveRequest.getFromDate(),
@@ -80,7 +85,7 @@ public class LeaveApplicationServiceImpl implements LeaveApplicationService {
 
         int leaveBalance=maximumDay-sumOfTotalLeave;
 
-        if(leaveBalance>0){
+        if(leaveBalance>0 && user.getRoles().equals("USER")){
             return leaveApplicationRepository.save(leaveApplication);
         }
         else{
@@ -94,13 +99,46 @@ public class LeaveApplicationServiceImpl implements LeaveApplicationService {
     }
 
     @Override
-    public LeaveApplication approveLeaveApplication(Long id, LeaveStatus leaveStatus) {
-        LeaveApplication leaveApplication=leaveApplicationRepository.findLeaveApplicationById(id);
-        leaveApplication.setLeaveStatus(leaveStatus);
-        if(leaveApplication!=null){
-            return leaveApplicationRepository.save(leaveApplication);
+    public List<LeaveApplication> findAllLeaveApplications() {
+        Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+        String email= authentication.getName();
+        User user=userRepository.findUserByEmail(email);
+        List<LeaveApplication> leaveApplicationList=leaveApplicationRepository.findAll();
+        List<LeaveApplication> applicationList=new ArrayList<>();
+        for(LeaveApplication leaveApplication: leaveApplicationList)
+        {
+            if(leaveApplication.getUser().getManagerId() == user.getUserId()){
+                applicationList.add(leaveApplication);
+            }
         }
-        throw new LeaveApplicationNotFoundException("Leave application not found!!");
+        return applicationList;
+    }
+
+    @Override
+    public String approveLeaveApplication(Long id, LeaveStatus leaveStatus) {
+        Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+        String email= authentication.getName();
+        User user=userRepository.findUserByEmail(email);
+
+        LeaveApplication leaveApplication=leaveApplicationRepository.findLeaveApplicationById(id);
+        if(leaveApplication==null){
+            return "No leaveApplication found!!";
+        }
+
+        if(leaveApplication.getUser().getManagerId()==user.getUserId()){
+            if(leaveApplication.getLeaveStatus()==LeaveStatus.APPROVED){
+                return "Already Approved!!";
+            }
+            else {
+                leaveApplication.setLeaveStatus(leaveStatus);
+                leaveApplicationRepository.save(leaveApplication);
+                return "LeaveApplication Approved";
+            }
+        }
+        else {
+            return "User Not Found!!";
+        }
+
     }
 
     @Override
@@ -122,6 +160,23 @@ public class LeaveApplicationServiceImpl implements LeaveApplicationService {
             return "Leave Application updated!!";
         }
         return "Your Leave Application Already Approved or Rejected!!";
+    }
+
+    @Override
+    public String putRemarks(ManagerRemarks managerRemarks, Long id) {
+        Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+        String email= authentication.getName();
+        User user=userRepository.findUserByEmail(email);
+        LeaveApplication leaveApplication=findLeaveApplicationById(id);
+        if(leaveApplication==null){
+            return "LeaveApplication not found!!";
+        }
+        if(leaveApplication.getUser().getManagerId()== user.getUserId()){
+            leaveApplication.setManagerRemark(managerRemarks.getRemarks());
+            leaveApplicationRepository.save(leaveApplication);
+            return "Successfully remarked!!";
+        }
+        return "User not found!!";
     }
 
     @Override
@@ -147,6 +202,33 @@ public class LeaveApplicationServiceImpl implements LeaveApplicationService {
         User user=userRepository.findUserByEmail(email);
         if(leaveStatus!=null){
             return leaveApplicationRepository.findLeaveApplicationByLeaveStatusAndUserUserId(leaveStatus, user.getUserId());
+        }
+        return null;
+    }
+
+    @Override
+    public List<LeaveApplication> showAllPendingLeaves() {
+        Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+        String email= authentication.getName();
+        User user=userRepository.findUserByEmail(email);
+        List<User>userList=userRepository.findUserByRolesRoleName("MANAGER");
+        List<LeaveApplication> leaveApplicationList=new ArrayList<>();
+
+        boolean found=false;
+        for (User userInfo:userList){
+            if(userInfo.getUserId()==user.getUserId()){
+                List<LeaveApplication> leaveApplication=leaveApplicationRepository.findLeaveApplicationByLeaveStatus(LeaveStatus.PENDING);
+                for(LeaveApplication application: leaveApplication){
+                    if(application.getUser().getManagerId()==user.getUserId()){
+                        leaveApplicationList.add(application);
+                    }
+                }
+                found=true;
+                break;
+            }
+        }
+        if (found){
+            return leaveApplicationList;
         }
         return null;
     }
@@ -178,6 +260,7 @@ public class LeaveApplicationServiceImpl implements LeaveApplicationService {
         for (YearlyLeave yearlyLeave: yearlyLeaveList){
             if(yearlyLeave.getYear()==currentYear){
                 maximumDay=yearlyLeave.getMaximumDay();
+                break;
             }
         }
 
@@ -204,6 +287,77 @@ public class LeaveApplicationServiceImpl implements LeaveApplicationService {
         else {
             throw new LeaveApplicationNotFoundException("Leave Application not found!!");
         }
+    }
+
+    @Override
+    public int showLeaveBalanceOfUsers(String email, String leaveType) {
+
+        User user=userRepository.findUserByEmail(email);
+        List<User>userList=userRepository.findUserByRolesRoleName("MANAGER");
+
+        LeaveType leave=leaveTypeRepository.findLeaveTypeByLeaveTypeName(leaveType);
+        List<YearlyLeave> yearlyLeaveList=yearlyLeaveRepository.findYearlyLeaveByLeaveTypeLeaveTypeId(leave.getLeaveTypeId());
+
+        Date date=new Date();
+        int y=date.getYear();
+        int currentYear=y+1900;
+
+        int maximumDay=0;
+        for (YearlyLeave yearlyLeave: yearlyLeaveList){
+            if(yearlyLeave.getYear()==currentYear){
+                maximumDay=yearlyLeave.getMaximumDay();
+                break;
+            }
+        }
+
+        List<LeaveApplication> leaveApplicationList=leaveApplicationRepository.findLeaveApplicationByLeaveTypeLeaveTypeNameAndUserUserId(leaveType, user.getUserId());
+
+        int sumOfTotalLeave=0;
+        boolean found=true;
+        for (User userInfo: userList)
+        {
+            if(userInfo.getUserId()==user.getManagerId()){
+                for (LeaveApplication leaveApplication: leaveApplicationList){
+                    if(leaveApplication.getLeaveStatus()!=LeaveStatus.PENDING){
+                        int duration=leaveApplication.getToDate().getDate()-leaveApplication.getFromDate().getDate();
+                        sumOfTotalLeave+=duration;
+                    }
+                }
+                break;
+            }
+            else {
+                found=false;
+            }
+        }
+        int leaveBalance;
+        leaveBalance=maximumDay-sumOfTotalLeave;
+
+        if(found){
+            return leaveBalance;
+        }
+
+        throw new EmailNotFoundException("User not found Exception!!");
+    }
+
+    @Override
+    public int showLeaveBalanceByLeaveType(String leaveType) {
+
+        LeaveType leave=leaveTypeRepository.findLeaveTypeByLeaveTypeName(leaveType);
+
+        List<YearlyLeave> yearlyLeaveList=yearlyLeaveRepository.findYearlyLeaveByLeaveTypeLeaveTypeId(leave.getLeaveTypeId());
+
+        Date date=new Date();
+        int y=date.getYear();
+        int currentYear=y+1900;
+
+        int leaveBalance=0;
+        for (YearlyLeave yearlyLeave: yearlyLeaveList){
+            if(yearlyLeave.getYear()==currentYear){
+                leaveBalance=yearlyLeave.getMaximumDay();
+                break;
+            }
+        }
+        return leaveBalance;
     }
 
 }

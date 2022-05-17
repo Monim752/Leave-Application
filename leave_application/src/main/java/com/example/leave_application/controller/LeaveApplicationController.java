@@ -1,13 +1,14 @@
 package com.example.leave_application.controller;
 
-import com.example.leave_application.DTO.SignUp;
-import com.example.leave_application.DTO.User.LeaveApplicationDTO;
+import com.example.leave_application.DTO.Admin.Admin;
+import com.example.leave_application.DTO.LeaveTypeDTO;
+import com.example.leave_application.DTO.Manager.Manager;
+import com.example.leave_application.DTO.Manager.ManagerRemarks;
+import com.example.leave_application.DTO.UserInfo;
 import com.example.leave_application.DTO.User.UpdateLeaveApplication;
-import com.example.leave_application.DTO.YearlyLeaveDTO;
 import com.example.leave_application.entity.LeaveApplication;
 import com.example.leave_application.entity.LeaveType;
 import com.example.leave_application.entity.User;
-import com.example.leave_application.entity.YearlyLeave;
 import com.example.leave_application.enums.LeaveStatus;
 import com.example.leave_application.service.LeaveApplicationService;
 import com.example.leave_application.service.LeaveTypeService;
@@ -43,11 +44,29 @@ public class LeaveApplicationController {
         return leaveApplicationService.findAll();
     }
 
-    @PostMapping("/signUp")
-    public User saveData(@RequestBody SignUp signUp){
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PostMapping("/addUser")
+    public User addUser(@RequestBody UserInfo signUp){
         String encodedPassword= passwordEncoder.encode(signUp.getPassword());
         signUp.setPassword(encodedPassword);
-        return userService.saveData(signUp);
+        return userService.addUser(signUp);
+    }
+
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PostMapping("/addAdmin")
+    public User addAdmin(Admin admin){
+        String encodedPassword= passwordEncoder.encode(admin.getPassword());
+        admin.setPassword(encodedPassword);
+        return userService.addAdmin(admin);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PostMapping("/addManager")
+    public User addManager(Manager manager){
+        String encodedPassword= passwordEncoder.encode(manager.getPassword());
+        manager.setPassword(encodedPassword);
+        return userService.addManager(manager);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -62,51 +81,45 @@ public class LeaveApplicationController {
         return yearlyLeaveService.allocateYearlyLeave(year, leaveType, maximumLeave);
     }
 
-    @PreAuthorize("hasAnyAuthority('MANAGER','ADMIN')")
-    @PatchMapping("/updateLeaveApplication/{id}")
-    public LeaveApplication approveLeaveApplication(@PathVariable("id") Long id, @RequestParam("leaveStatus") LeaveStatus leaveStatus){
+    @PreAuthorize("hasAuthority('MANAGER')")
+    @PostMapping("/approveLeaveApplication/{id}")
+    public String approveLeaveApplication(@PathVariable("id") Long id, @RequestParam("leaveStatus") LeaveStatus leaveStatus){
         return leaveApplicationService.approveLeaveApplication(id, leaveStatus);
     }
 
     @PreAuthorize("hasAuthority('MANAGER')")
-    @GetMapping("findLeaveApplication/{id}")
-    public LeaveApplication findLeaveApplicationById(@PathVariable("id") Long id){
-        return leaveApplicationService.findLeaveApplicationById(id);
+    @PutMapping("/putRemarks/{id}")
+    public String putRemarks(@RequestBody ManagerRemarks managerRemarks, @PathVariable("id") Long id){
+        return leaveApplicationService.putRemarks(managerRemarks, id);
+    }
+
+    @PreAuthorize("hasAuthority('MANAGER')")
+    @GetMapping("/findAllLeaveApplications")
+    public List<LeaveApplication> findAllLeaveApplications(){
+        return leaveApplicationService.findAllLeaveApplications();
+    }
+
+    @PreAuthorize("hasAuthority('MANAGER')")
+    @GetMapping("/showAllPendingLeaves")
+    public List<LeaveApplication> showAllPendingLeaves(){
+        return leaveApplicationService.showAllPendingLeaves();
+    }
+
+    @PreAuthorize("hasAuthority('MANAGER')")
+    @GetMapping("/showLeaveBalanceByLeaveType")
+    public int showLeaveBalanceByLeaveType(@RequestParam("leaveType") String leaveType){
+        return leaveApplicationService.showLeaveBalanceByLeaveType(leaveType);
+    }
+
+    @PreAuthorize("hasAnyAuthority('MANAGER','ADMIN')")
+    @GetMapping("/showLeaveBalanceOfUsers/{email}")
+    public int showLeaveBalanceOfUsers(@PathVariable("email") String email, @RequestParam("leaveType") String leaveType){
+        return leaveApplicationService.showLeaveBalanceOfUsers(email, leaveType);
     }
 
     @PreAuthorize("hasAuthority('MANAGER')")
     @GetMapping("/findLeaveApplicationByDateRange/{fromDate}/{toDate}")
     public List<LeaveApplication> findLeaveApplicationByFromDateBetweenAndToDate(@PathVariable("fromDate") Date fromDate, @PathVariable("toDate") Date toDate){
         return leaveApplicationService.findLeaveApplicationByDateRange(fromDate,toDate);
-    }
-
-    @PreAuthorize("hasAuthority('USER')")
-    @PostMapping("/createLeaveApplication")
-    public LeaveApplication createLeaveApplication(@RequestBody com.example.leave_application.DTO.User.LeaveApplicationDTO leaveRequest, @RequestParam("leaveTyp") String leaveType){
-        return leaveApplicationService.createLeaveApplication(leaveRequest, leaveType);
-    }
-
-    @PreAuthorize("hasAuthority('USER')")
-    @PutMapping("/updateLeaveApplication/{id}")
-    public String updateLeaveApplication(@RequestBody UpdateLeaveApplication updateLeaveApplication, @PathVariable("id") Long id){
-        return leaveApplicationService.updateLeaveApplication(updateLeaveApplication, id);
-    }
-
-    @PreAuthorize("hasAuthority('USER')")
-    @GetMapping("/viewLeaveApplications/{leaveType}")
-    public List<LeaveApplication> findLeaveApplicationByLeaveTypeLeaveTypeName(@PathVariable("leaveType") String leaveType){
-        return leaveApplicationService.findLeaveApplicationByLeaveTypeLeaveTypeName(leaveType);
-    }
-
-    @PreAuthorize("hasAuthority('USER')")
-    @GetMapping("findLeaveApplications/{leaveStatus}")
-    public List<LeaveApplication>findLeaveApplicationByLeaveStatus(@PathVariable("leaveStatus") LeaveStatus leaveStatus){
-        return leaveApplicationService.findLeaveApplicationByLeaveStatus(leaveStatus);
-    }
-
-    @PreAuthorize("hasAuthority('USER')")
-    @GetMapping("/showLeaveBalance/{leaveType}")
-    public int showLeaveBalance(@PathVariable("leaveType") String leaveType){
-        return leaveApplicationService.showLeaveBalance(leaveType);
     }
 }

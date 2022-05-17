@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -25,6 +26,8 @@ public class User {
     private String password;
     private String userName;
     private Long managerId;
+    private LocalDateTime tokenExpireTime;
+    private String accessToken;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "users_roles",
@@ -45,6 +48,14 @@ public class User {
     public User(Long userId) {
         super();
         this.userId=userId;
+    }
+
+    public User(String email, String password, String userName, Collection<Role> roles) {
+        super();
+        this.email=email;
+        this.password=password;
+        this.userName=userName;
+        this.roles=roles;
     }
 
     @Override
