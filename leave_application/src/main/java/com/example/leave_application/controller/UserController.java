@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -33,7 +34,7 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('USER')")
     @PostMapping("/createLeaveApplication")
-    public LeaveApplication createLeaveApplication(@RequestBody com.example.leave_application.DTO.User.LeaveApplicationDTO leaveRequest, @RequestParam("leaveTyp") String leaveType){
+    public LeaveApplication createLeaveApplication(@RequestBody com.example.leave_application.DTO.User.LeaveApplicationDTO leaveRequest, @RequestParam("leaveType") String leaveType){
         return leaveApplicationService.createLeaveApplication(leaveRequest, leaveType);
     }
 
@@ -65,6 +66,12 @@ public class UserController {
     @GetMapping("/showLeaveBalance/{leaveType}")
     public int showLeaveBalance(@PathVariable("leaveType") String leaveType){
         return leaveApplicationService.showLeaveBalance(leaveType);
+    }
+
+    @PreAuthorize("hasAuthority('USER')")
+    @GetMapping("/findLeaveApplicationByDateRange/{fromDate}/{toDate}")
+    public List<LeaveApplication> findLeaveApplicationByFromDateBetweenAndToDate(@PathVariable("fromDate") Date fromDate, @PathVariable("toDate") Date toDate){
+        return leaveApplicationService.findLeaveApplicationByDateRange(fromDate,toDate);
     }
 
 }

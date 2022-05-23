@@ -85,7 +85,7 @@ public class LeaveApplicationServiceImpl implements LeaveApplicationService {
 
         int leaveBalance=maximumDay-sumOfTotalLeave;
 
-        if(leaveBalance>0 && user.getRoles().equals("USER")){
+        if(leaveBalance>0){
             return leaveApplicationRepository.save(leaveApplication);
         }
         else{
@@ -181,7 +181,13 @@ public class LeaveApplicationServiceImpl implements LeaveApplicationService {
 
     @Override
     public List<LeaveApplication> findLeaveApplicationByDateRange(Date fromDate, Date toDate) {
-        return leaveApplicationRepository.findLeaveApplicationByFromDateBetween(fromDate, toDate);
+        Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+        String email= authentication.getName();
+        User user=userRepository.findUserByEmail(email);
+        if(user!=null) {
+            return leaveApplicationRepository.findLeaveApplicationByFromDateBetweenAndUserUserId(fromDate, toDate, user.getManagerId());
+        }
+        return null;
     }
 
     @Override

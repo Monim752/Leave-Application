@@ -117,9 +117,4 @@ public class LeaveApplicationController {
         return leaveApplicationService.showLeaveBalanceOfUsers(email, leaveType);
     }
 
-    @PreAuthorize("hasAuthority('MANAGER')")
-    @GetMapping("/findLeaveApplicationByDateRange/{fromDate}/{toDate}")
-    public List<LeaveApplication> findLeaveApplicationByFromDateBetweenAndToDate(@PathVariable("fromDate") Date fromDate, @PathVariable("toDate") Date toDate){
-        return leaveApplicationService.findLeaveApplicationByDateRange(fromDate,toDate);
-    }
 }

@@ -24,7 +24,7 @@ public interface LeaveApplicationRepository extends JpaRepository<LeaveApplicati
 
     List<LeaveApplication> findLeaveApplicationByLeaveTypeLeaveTypeNameAndUserUserId(String leaveType, Long userId);
 
-    List<LeaveApplication> findLeaveApplicationByFromDateBetween(Date fromDate, Date toDate);
+    List<LeaveApplication> findLeaveApplicationByFromDateBetweenAndUserUserId(Date fromDate, Date toDate, Long userId);
 
     List<LeaveApplication> findLeaveApplicationByUserUserIdAndLeaveStatus(Long userId, LeaveStatus leaveStatus);
 
